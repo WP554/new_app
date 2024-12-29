@@ -10,8 +10,9 @@ import matplotlib.font_manager as fm
 import seaborn as sns
 import validators
 
-# 设置字体路径，确保该路径指向一个有效的中文字体streamlit run app.py
-font_path = 'C:/Windows/Fonts/simhei.ttf'  # 请根据实际字体路径进行修改
+
+# 设置字体路径，确保该路径指向一个有效的中文字体
+font_path = 'Font/SimHei.ttf'  # 请根据实际字体路径进行修改
 font_prop = fm.FontProperties(fname=font_path)
 
 
@@ -39,7 +40,7 @@ def remove_punctuation(text):
 # 生成词云图
 def generate_wordcloud(word_counts):
     wordcloud = WordCloud(font_path=font_path, width=400, height=200,
-                          background_color='white').generate_from_frequencies(word_counts)
+                        background_color='white').generate_from_frequencies(word_counts)
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')  # 不显示坐标轴
     fig = plt.gcf()
@@ -57,7 +58,7 @@ def main():
 
     # 选择图型
     chart_type = st.sidebar.selectbox("选择可视化图型:",
-                                      ["柱状图", "饼图", "折线图", "面积图", "散点图", "箱线图", "词云图"])
+                                 ["柱状图", "饼图", "折线图", "面积图", "散点图", "箱线图", "词云图"])
 
     if st.sidebar.button("抓取并分析"):
         # 验证输入的URL
@@ -65,7 +66,7 @@ def main():
             st.error("请输入有效的 URL!")
             return
 
-            # 读取停用词
+        # 读取停用词
         if stopwords_file is not None:
             stopwords = set(stopwords_file.read().decode('utf-8').splitlines())
         else:
@@ -77,6 +78,11 @@ def main():
             html = fetch_content(url)
             clean_text = remove_html_tags(html)  # 去除HTML标签
             clean_text = remove_punctuation(clean_text)  # 去除标点符号
+
+            # 显示处理后的文本内容
+            st.write("处理后的文本内容如下：")
+            st.write(clean_text)
+
             words = jieba.lcut(clean_text)  # 分词
 
             # 筛选有意义的词
@@ -108,11 +114,9 @@ def main():
                     freq_df['频率'], labels=freq_df['词语'], autopct='%1.1f%%', startangle=90)
                 plt.axis('equal')  # 使饼图为正圆
                 plt.title('词频饼图', fontproperties=font_prop)
-
                 # 设置饼图中扇区文本和百分比的字体
                 for text in texts + autotexts:
                     text.set_fontproperties(font_prop)
-
                 st.pyplot(fig1)
 
             elif chart_type == "折线图":
@@ -124,7 +128,7 @@ def main():
                 plt.xticks(rotation=45, fontproperties=font_prop)
                 for i, txt in enumerate(freq_df['频率']):
                     ax2.annotate(txt, (freq_df['词语'][i], freq_df['频率'][i]), textcoords="offset points",
-                                 xytext=(0, 10), ha='center')
+                                xytext=(0, 10), ha='center')
                 st.pyplot(fig2)
 
             elif chart_type == "面积图":
@@ -147,7 +151,7 @@ def main():
                 plt.xticks(rotation=45, fontproperties=font_prop)
                 for i, txt in enumerate(freq_df['频率']):
                     ax4.annotate(txt, (freq_df['词语'][i], freq_df['频率'][i]), textcoords="offset points",
-                                 xytext=(0, 10), ha='center')
+                                xytext=(0, 10), ha='center')
                 st.pyplot(fig4)
 
             elif chart_type == "箱线图":

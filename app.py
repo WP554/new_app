@@ -16,7 +16,7 @@ font_path = 'Font/SimHei.ttf'  # 请根据实际字体路径进行修改
 font_prop = fm.FontProperties(fname=font_path)
 
 
-# URL抓取函数
+# URL 抓取函数
 def fetch_content(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
@@ -28,7 +28,7 @@ def fetch_content(url):
 
 
 def remove_html_tags(html):
-    """去除HTML标签"""
+    """去除 HTML 标签"""
     return re.sub(r'<[^>]+>', '', html)
 
 
@@ -53,15 +53,15 @@ def main():
     # 侧边栏加载停用词文件
     stopwords_file = st.sidebar.file_uploader("上传停用词文件 (stopwords.txt):", type=['txt'])
 
-    # 侧边栏输入URL
-    url = st.sidebar.text_input("输入文章的URL:", placeholder="https://example.com")
+    # 侧边栏输入 URL
+    url = st.sidebar.text_input("输入文章的 URL:", placeholder="https://example.com")
 
     # 选择图型
     chart_type = st.sidebar.selectbox("选择可视化图型:",
-                                 ["柱状图", "饼图", "折线图", "面积图", "散点图", "箱线图", "词云图"])
+                                ["柱状图", "饼图", "折线图", "面积图", "散点图", "箱线图", "词云图"])
 
     if st.sidebar.button("抓取并分析"):
-        # 验证输入的URL
+        # 验证输入的 URL
         if not validators.url(url):
             st.error("请输入有效的 URL!")
             return
@@ -74,32 +74,31 @@ def main():
             return
 
         try:
-            # 抓取HTML内容
+            # 抓取 HTML 内容
             html = fetch_content(url)
-            clean_text = remove_html_tags(html)  # 去除HTML标签
+            clean_text = remove_html_tags(html)  # 去除 HTML 标签
             clean_text = remove_punctuation(clean_text)  # 去除标点符号
-
-            # 显示处理后的文本内容
-            st.write("处理后的文本内容如下：")
-            st.write(clean_text)
-
             words = jieba.lcut(clean_text)  # 分词
 
             # 筛选有意义的词
             meaningful_words = [word for word in words if word not in stopwords and len(word) > 1]
             word_counts = Counter(meaningful_words)  # 统计词频
-            most_common_words = word_counts.most_common(20)  # 输出词频最高的20个词
+            most_common_words = word_counts.most_common(20)  # 输出词频最高的 20 个词
             freq_df = pd.DataFrame(most_common_words, columns=['词语', '频率'])
 
+            # 显示提取的文章
+            with st.expander("查看提取的文章"):
+                st.write(clean_text)
+
             # 词频数据显示
-            st.write("词频排名前20的词汇：")
+            st.write("词频排名前 20 的词汇：")
             st.dataframe(freq_df)
 
             # 根据选择的图形类型生成对应的图形
             if chart_type == "柱状图":
                 fig, ax = plt.subplots()
                 bars = ax.bar(freq_df['词语'], freq_df['频率'], color='orange')
-                plt.title('词频最高的20个词', fontproperties=font_prop)
+                plt.title('词频最高的 20 个词', fontproperties=font_prop)
                 plt.xlabel('词语', fontproperties=font_prop)
                 plt.ylabel('频率', fontproperties=font_prop)
                 plt.xticks(rotation=45, fontproperties=font_prop)
